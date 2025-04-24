@@ -1,0 +1,33 @@
+nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: always
+    depends_on:
+      - wordpress
+    volumes:
+     - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - wp_data:/var/www/html
+    ports:
+      - "80:80"
+
+
+
+rubenhomb@kali:~/wordpress-docker/nginx$ cat default.conf
+server {
+    listen 8080;
+    server_name localhost;
+
+    root /var/www/html;
+    index index.php index.html;
+
+    location / {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    location ~ \.php$ {
+        include fastcgi_params;
+        fastcgi_pass wordpress:9000;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    }
+}
